@@ -1,10 +1,14 @@
-import { getPost, getAllSlugs } from "@/lib/getPost";
+import { getPost } from "@/lib/getPost";
 import { notFound } from "next/navigation";
 
-export default async function BlogPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+interface BlogPageProps {
+  params: Promise<{ slug: string }>; // <-- yaha Promise add karo
+}
 
-  // Blog fetch (await lagana zaroori hai)
+export default async function BlogPage({ params }: BlogPageProps) {
+  const { slug } = await params; // <-- params ko await karna hoga
+
+  // Blog fetch
   const post = await getPost(slug);
 
   if (!post) {
@@ -29,10 +33,4 @@ export default async function BlogPage({ params }: { params: { slug: string } })
       <div>{post.content}</div>
     </article>
   );
-}
-
-// ✅ Generate static params for SSG
-export async function generateStaticParams() {
-  const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
 }
