@@ -4,128 +4,202 @@ import { useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 
 export default function ResumeBuilder() {
-  // ✅ Form data state
-  const [formData, setFormData] = useState({
-    photo: "",
+  // ✅ Personal Info
+  const [personal, setPersonal] = useState({
     name: "",
-    title: "",
     email: "",
     phone: "",
-    education: "",
-    skills: "",
-    projects: "",
-    experience: "",
-    certifications: "",
+    linkedin: "",
+    github: "",
+    address: "",
   });
 
-  // ✅ Ref for resume content
+  // ✅ Education Info
+  const [education, setEducation] = useState<
+    { degree: string; school: string; year: string; marks: string }[]
+  >([]);
+
+  // ✅ Skills
+  const [skills, setSkills] = useState<string>("");
+
+  // ✅ Experience
+  const [experience, setExperience] = useState<string>("");
+
+  // ✅ Projects
+  const [projects, setProjects] = useState<string>("");
+
+  // ✅ Certifications
+  const [certifications, setCertifications] = useState<string>("");
+
+  // ✅ Ref for PDF
   const resumeRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Print / Download PDF
+  // ✅ Fix for TS error (content return type set to HTMLElement | null)
   const handlePrint = useReactToPrint({
-    contentRef: resumeRef,
+    content: (): HTMLElement | null => resumeRef.current,
     documentTitle: "My_Resume",
   });
 
-  // ✅ Handle form input change
-  const handleChange = (
+  // Handlers
+  const handlePersonalChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setPersonal({ ...personal, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle photo upload
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = () =>
-        setFormData({ ...formData, photo: reader.result as string });
-      reader.readAsDataURL(e.target.files[0]);
-    }
+  const addEducation = () => {
+    setEducation([
+      ...education,
+      { degree: "", school: "", year: "", marks: "" },
+    ]);
+  };
+
+  const updateEducation = (index: number, field: string, value: string) => {
+    const newEdu = [...education];
+    (newEdu[index] as any)[field] = value;
+    setEducation(newEdu);
   };
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">📝 Resume Builder</h1>
 
-      {/* ✅ Form Section */}
+      {/* -------- Form Section -------- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <input
           type="text"
           name="name"
           placeholder="Full Name"
           className="border p-2 rounded"
-          value={formData.name}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="title"
-          placeholder="Job Title"
-          className="border p-2 rounded"
-          value={formData.title}
-          onChange={handleChange}
+          value={personal.name}
+          onChange={handlePersonalChange}
         />
         <input
           type="email"
           name="email"
           placeholder="Email"
           className="border p-2 rounded"
-          value={formData.email}
-          onChange={handleChange}
+          value={personal.email}
+          onChange={handlePersonalChange}
         />
         <input
           type="text"
           name="phone"
           placeholder="Phone"
           className="border p-2 rounded"
-          value={formData.phone}
-          onChange={handleChange}
+          value={personal.phone}
+          onChange={handlePersonalChange}
         />
-
-        <textarea
-          name="education"
-          placeholder="Education"
+        <input
+          type="text"
+          name="linkedin"
+          placeholder="LinkedIn Profile"
           className="border p-2 rounded col-span-2"
-          rows={3}
-          value={formData.education}
-          onChange={handleChange}
+          value={personal.linkedin}
+          onChange={handlePersonalChange}
         />
-        <textarea
-          name="skills"
-          placeholder="Skills (comma separated)"
+        <input
+          type="text"
+          name="github"
+          placeholder="GitHub Profile"
           className="border p-2 rounded col-span-2"
-          rows={2}
-          value={formData.skills}
-          onChange={handleChange}
+          value={personal.github}
+          onChange={handlePersonalChange}
         />
-        <textarea
-          name="projects"
-          placeholder="Projects"
+        <input
+          type="text"
+          name="address"
+          placeholder="Address"
           className="border p-2 rounded col-span-2"
-          rows={2}
-          value={formData.projects}
-          onChange={handleChange}
-        />
-        <textarea
-          name="experience"
-          placeholder="Experience"
-          className="border p-2 rounded col-span-2"
-          rows={2}
-          value={formData.experience}
-          onChange={handleChange}
-        />
-        <textarea
-          name="certifications"
-          placeholder="Certifications"
-          className="border p-2 rounded col-span-2"
-          rows={2}
-          value={formData.certifications}
-          onChange={handleChange}
+          value={personal.address}
+          onChange={handlePersonalChange}
         />
       </div>
 
-      {/* ✅ Print Button */}
+      {/* Skills */}
+      <textarea
+        placeholder="Skills (comma separated)"
+        className="border p-2 rounded w-full mb-6"
+        rows={2}
+        value={skills}
+        onChange={(e) => setSkills(e.target.value)}
+      />
+
+      {/* Education */}
+      <div className="mb-6">
+        <h2 className="font-semibold text-lg mb-2">Education</h2>
+        {education.map((edu, idx) => (
+          <div key={idx} className="grid grid-cols-4 gap-2 mb-2">
+            <input
+              type="text"
+              placeholder="Degree"
+              className="border p-2 rounded"
+              value={edu.degree}
+              onChange={(e) =>
+                updateEducation(idx, "degree", e.target.value)
+              }
+            />
+            <input
+              type="text"
+              placeholder="School"
+              className="border p-2 rounded"
+              value={edu.school}
+              onChange={(e) =>
+                updateEducation(idx, "school", e.target.value)
+              }
+            />
+            <input
+              type="text"
+              placeholder="Year"
+              className="border p-2 rounded"
+              value={edu.year}
+              onChange={(e) => updateEducation(idx, "year", e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Marks/CGPA"
+              className="border p-2 rounded"
+              value={edu.marks}
+              onChange={(e) => updateEducation(idx, "marks", e.target.value)}
+            />
+          </div>
+        ))}
+        <button
+          onClick={addEducation}
+          className="px-4 py-1 bg-gray-700 text-white rounded"
+        >
+          ➕ Add Education
+        </button>
+      </div>
+
+      {/* Experience */}
+      <textarea
+        placeholder="Experience"
+        className="border p-2 rounded w-full mb-6"
+        rows={3}
+        value={experience}
+        onChange={(e) => setExperience(e.target.value)}
+      />
+
+      {/* Projects */}
+      <textarea
+        placeholder="Projects"
+        className="border p-2 rounded w-full mb-6"
+        rows={3}
+        value={projects}
+        onChange={(e) => setProjects(e.target.value)}
+      />
+
+      {/* Certifications */}
+      <textarea
+        placeholder="Certifications"
+        className="border p-2 rounded w-full mb-6"
+        rows={2}
+        value={certifications}
+        onChange={(e) => setCertifications(e.target.value)}
+      />
+
+      {/* ✅ Download Button */}
       <button
         onClick={handlePrint}
         className="px-6 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
@@ -133,91 +207,42 @@ export default function ResumeBuilder() {
         📄 Download Resume
       </button>
 
-      {/* ✅ Resume Preview Section */}
+      {/* -------- Resume Preview -------- */}
       <div
         ref={resumeRef}
-        className="mt-10 bg-white border rounded-xl shadow-lg overflow-hidden"
+        className="mt-10 p-6 border rounded-lg shadow bg-white"
       >
-        {/* Header */}
-        <div className="flex items-center gap-6 border-b p-6">
-          {formData.photo ? (
-            <img
-              src={formData.photo}
-              alt="Profile"
-              className="w-24 h-24 rounded-full border object-cover"
-            />
-          ) : (
-            <label
-              htmlFor="photoUpload"
-              className="w-24 h-24 flex items-center justify-center border-2 border-dashed rounded-full text-gray-500 text-sm cursor-pointer hover:bg-gray-100 transition"
-            >
-              Upload your photo here
-              <input
-                type="file"
-                id="photoUpload"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoUpload}
-              />
-            </label>
+        <h2 className="text-3xl font-bold">{personal.name}</h2>
+        <p className="text-gray-600">
+          {personal.email} | {personal.phone}
+        </p>
+        <p className="text-gray-500">{personal.linkedin} | {personal.github}</p>
+        <p className="text-gray-500">{personal.address}</p>
+
+        <h3 className="text-xl font-semibold mt-4">Skills</h3>
+        <ul className="list-disc ml-5">
+          {skills.split(",").map(
+            (s, idx) => s.trim() && <li key={idx}>{s.trim()}</li>
           )}
+        </ul>
 
-          <div>
-            <h2 className="text-3xl font-bold">
-              {formData.name || "Your Name"}
-            </h2>
-            <p className="text-lg text-gray-700">
-              {formData.title || "Your Job Title"}
-            </p>
-            <p className="text-gray-600">
-              {(formData.email || "yourmail@example.com")} |{" "}
-              {(formData.phone || "+91 9876543210")}
-            </p>
-          </div>
-        </div>
+        <h3 className="text-xl font-semibold mt-4">Education</h3>
+        <ul>
+          {education.map((edu, idx) => (
+            <li key={idx}>
+              <strong>{edu.degree}</strong> — {edu.school} ({edu.year}) | {edu.marks}
+            </li>
+          ))}
+        </ul>
 
-        {/* 2 Column Layout */}
-        <div className="grid grid-cols-3 gap-6 p-6">
-          {/* Left Column */}
-          <div className="col-span-1 bg-gray-50 p-4 rounded">
-            <h3 className="text-lg font-semibold border-b pb-1">Skills</h3>
-            <ul className="list-disc ml-5 mt-2">
-              {formData.skills.split(",").map(
-                (skill, idx) =>
-                  skill.trim() && <li key={idx}>{skill.trim()}</li>
-              )}
-            </ul>
+        <h3 className="text-xl font-semibold mt-4">Experience</h3>
+        <p>{experience}</p>
 
-            <h3 className="text-lg font-semibold border-b pb-1 mt-4">
-              Certifications
-            </h3>
-            <p className="mt-2">
-              {formData.certifications || "No certifications added"}
-            </p>
-          </div>
+        <h3 className="text-xl font-semibold mt-4">Projects</h3>
+        <p>{projects}</p>
 
-          {/* Right Column */}
-          <div className="col-span-2">
-            <h3 className="text-xl font-semibold border-b pb-1">Education</h3>
-            <p className="mt-2">
-              {formData.education || "Add your education details"}
-            </p>
-
-            <h3 className="text-xl font-semibold border-b pb-1 mt-4">
-              Projects
-            </h3>
-            <p className="mt-2">
-              {formData.projects || "List your projects here"}
-            </p>
-
-            <h3 className="text-xl font-semibold border-b pb-1 mt-4">
-              Experience
-            </h3>
-            <p className="mt-2">
-              {formData.experience || "Mention your experience"}
-            </p>
-          </div>
-        </div>
+        <h3 className="text-xl font-semibold mt-4">Certifications</h3>
+        <p>{certifications}</p>
       </div>
     </div>
   );
