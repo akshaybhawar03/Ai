@@ -12,10 +12,16 @@ export const metadata: Metadata = {
   description: "AI powered finance tools for smarter decision making.",
   manifest: "/manifest.json",
 
+  // ✅ Google Site Verification
+  verification: {
+    google: "Y1Mox3vYUXwpLs66dSBbe3H1FpAP8zCu5rqDBuWqlII",
+  },
+
   // ✅ SEO Rich Meta
   openGraph: {
     title: "AI Finance Tools",
-    description: "Latest finance news, live stock market updates, and crypto insights.",
+    description:
+      "Latest finance news, live stock market updates, and crypto insights.",
     url: "https://yourdomain.com",
     siteName: "AI Finance Tools",
     images: [
@@ -55,6 +61,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Fallback: Agar verification tag metadata se render na ho to manually bhi daal diya */}
+        <meta
+          name="google-site-verification"
+          content="Y1Mox3vYUXwpLs66dSBbe3H1FpAP8zCu5rqDBuWqlII"
+        />
+      </head>
       <body className="bg-gray-50">
         <Navbar />
         <ServiceWorkerProvider /> {/* 👈 SW यहाँ register होगा */}

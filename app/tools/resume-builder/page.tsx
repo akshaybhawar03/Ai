@@ -1,251 +1,244 @@
 "use client";
-
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 
-export default function ResumeBuilder() {
-  // ✅ Personal Info
-  const [personal, setPersonal] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    linkedin: "",
-    github: "",
-    address: "",
+export default function ResumeBuilderPage() {
+  const [template, setTemplate] = useState("template1");
+  const [photo, setPhoto] = useState<string | null>(null);
+
+  // Resume data
+  const [fullName, setFullName] = useState("");
+  const [title, setTitle] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [github, setGithub] = useState("");
+  const [summary, setSummary] = useState("");
+  const [education, setEducation] = useState("");
+  const [experience, setExperience] = useState("");
+  const [projects, setProjects] = useState("");
+  const [skills, setSkills] = useState("");
+  const [certifications, setCertifications] = useState("");
+
+  // Print Ref
+  const componentRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: "My_Resume",
   });
 
-  // ✅ Education Info
-  const [education, setEducation] = useState<
-    { degree: string; school: string; year: string; marks: string }[]
-  >([]);
-
-  // ✅ Skills
-  const [skills, setSkills] = useState<string>("");
-
-  // ✅ Experience
-  const [experience, setExperience] = useState<string>("");
-
-  // ✅ Projects
-  const [projects, setProjects] = useState<string>("");
-
-  // ✅ Certifications
-  const [certifications, setCertifications] = useState<string>("");
-
-  // ✅ Ref for PDF
-  const resumeRef = useRef<HTMLDivElement>(null);
-
-  // ✅ Fix for TS error (content return type set to HTMLElement | null)
-  const handlePrint = useReactToPrint({
-  // @ts-ignore
-  content: () => resumeRef.current,
-  documentTitle: "My_Resume",
-});
-
-
-  // Handlers
-  const handlePersonalChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setPersonal({ ...personal, [e.target.name]: e.target.value });
+  // Handle photo upload
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => setPhoto(reader.result as string);
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
 
-  const addEducation = () => {
-    setEducation([
-      ...education,
-      { degree: "", school: "", year: "", marks: "" },
-    ]);
-  };
+  // ---------------- RESUME TEMPLATES ----------------
+  const renderTemplate = () => {
+    switch (template) {
+      case "template2":
+        return (
+          <TemplateContainer ref={componentRef}>
+            <div className="text-center border-b pb-4 mb-6">
+              {photo && <img src={photo} alt="Profile" className="w-20 h-20 rounded-full object-cover mx-auto mb-3" />}
+              <h2 className="text-2xl font-bold">{fullName || "Your Name"}</h2>
+              <p className="text-gray-600">{title || "Job Title"}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {email && `📧 ${email}`} {phone && ` | 📞 ${phone}`}  
+                {linkedin && ` | 🔗 LinkedIn`} {github && ` | 💻 GitHub`}
+              </p>
+            </div>
+            {summary && <Section title="Professional Summary" content={summary} />}
+            {education && <Section title="Education" content={education} />}
+            {experience && <Section title="Experience" content={experience} />}
+            {projects && <Section title="Projects" content={projects} />}
+            {skills && <Section title="Skills" content={skills} />}
+            {certifications && <Section title="Certifications" content={certifications} />}
+          </TemplateContainer>
+        );
 
-  const updateEducation = (index: number, field: string, value: string) => {
-    const newEdu = [...education];
-    (newEdu[index] as any)[field] = value;
-    setEducation(newEdu);
+      case "template3":
+        return (
+          <div ref={componentRef} className="w-full max-w-5xl bg-white mt-10 rounded-xl shadow-lg border flex">
+            {/* Sidebar */}
+            <div className="w-1/4 bg-blue-900 text-white p-6 flex flex-col items-center">
+              {photo && <img src={photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-4 border-white mb-4" />}
+              <h2 className="text-lg font-bold">{fullName || "Your Name"}</h2>
+              <p className="text-sm">{title || "Job Title"}</p>
+              <div className="mt-6 text-xs text-gray-200">
+                {email && <p>📧 {email}</p>}
+                {phone && <p>📞 {phone}</p>}
+                {linkedin && <p>🔗 LinkedIn</p>}
+                {github && <p>💻 GitHub</p>}
+              </div>
+              {skills && <Section title="Skills" content={skills} sidebar />}
+            </div>
+            {/* Main */}
+            <div className="w-3/4 p-6">
+              {summary && <Section title="Summary" content={summary} />}
+              {education && <Section title="Education" content={education} />}
+              {experience && <Section title="Experience" content={experience} />}
+              {projects && <Section title="Projects" content={projects} />}
+              {certifications && <Section title="Certifications" content={certifications} />}
+            </div>
+          </div>
+        );
+
+      case "template4":
+        return (
+          <div ref={componentRef} className="w-full max-w-5xl bg-white mt-10 rounded-lg shadow-lg border flex">
+            {/* Left Sidebar */}
+            <div className="w-1/3 bg-gray-900 text-white p-6 flex flex-col items-center">
+              {photo && <img src={photo} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-gray-700 mb-4" />}
+              <h2 className="text-xl font-bold">{fullName || "Your Name"}</h2>
+              <p className="text-gray-300">{title || "Job Title"}</p>
+              <div className="mt-6 text-sm space-y-2">
+                {email && <p>📧 {email}</p>}
+                {phone && <p>📞 {phone}</p>}
+                {linkedin && <p>🔗 LinkedIn</p>}
+                {github && <p>💻 GitHub</p>}
+              </div>
+              {skills && <Section title="Skills" content={skills} sidebar />}
+              {certifications && <Section title="Certifications" content={certifications} sidebar />}
+            </div>
+
+            {/* Right Main Content */}
+            <div className="w-2/3 p-8">
+              {summary && <Section title="Professional Summary" content={summary} />}
+              {experience && <Section title="Work Experience" content={experience} />}
+              {projects && <Section title="Projects" content={projects} />}
+              {education && <Section title="Education" content={education} />}
+            </div>
+          </div>
+        );
+
+      default: // Template 1
+        return (
+          <div ref={componentRef} className="w-full max-w-5xl bg-white mt-10 rounded-xl shadow-lg border flex">
+            {/* Left Column */}
+            <div className="w-1/3 bg-gray-100 p-6">
+              {photo && <img src={photo} alt="Profile" className="w-28 h-28 rounded-full object-cover mx-auto mb-4" />}
+              <h2 className="text-xl font-bold text-center">{fullName || "Your Name"}</h2>
+              <p className="text-gray-600 text-center">{title || "Job Title"}</p>
+              <div className="mt-6 space-y-2 text-sm">
+                {email && <p>📧 {email}</p>}
+                {phone && <p>📞 {phone}</p>}
+                {linkedin && <p>🔗 LinkedIn</p>}
+                {github && <p>💻 GitHub</p>}
+              </div>
+              {skills && <Section title="Skills" content={skills} />}
+              {certifications && <Section title="Certifications" content={certifications} />}
+            </div>
+            {/* Right Column */}
+            <div className="w-2/3 p-6">
+              {summary && <Section title="Summary" content={summary} />}
+              {education && <Section title="Education" content={education} />}
+              {experience && <Section title="Experience" content={experience} />}
+              {projects && <Section title="Projects" content={projects} />}
+            </div>
+          </div>
+        );
+    }
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">📝 Resume Builder</h1>
+    <div className="min-h-screen bg-gray-50 p-6 flex gap-6">
+      {/* Left: Form */}
+      <div className="w-1/3 bg-white p-6 rounded-xl shadow-md overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Resume Builder</h2>
 
-      {/* -------- Form Section -------- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          className="border p-2 rounded"
-          value={personal.name}
-          onChange={handlePersonalChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="border p-2 rounded"
-          value={personal.email}
-          onChange={handlePersonalChange}
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          className="border p-2 rounded"
-          value={personal.phone}
-          onChange={handlePersonalChange}
-        />
-        <input
-          type="text"
-          name="linkedin"
-          placeholder="LinkedIn Profile"
-          className="border p-2 rounded col-span-2"
-          value={personal.linkedin}
-          onChange={handlePersonalChange}
-        />
-        <input
-          type="text"
-          name="github"
-          placeholder="GitHub Profile"
-          className="border p-2 rounded col-span-2"
-          value={personal.github}
-          onChange={handlePersonalChange}
-        />
-        <input
-          type="text"
-          name="address"
-          placeholder="Address"
-          className="border p-2 rounded col-span-2"
-          value={personal.address}
-          onChange={handlePersonalChange}
-        />
-      </div>
+        {/* Photo Upload */}
+        <label className="block mb-3">
+          <span className="font-semibold">Upload Photo</span>
+          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="mt-2 w-full" />
+        </label>
 
-      {/* Skills */}
-      <textarea
-        placeholder="Skills (comma separated)"
-        className="border p-2 rounded w-full mb-6"
-        rows={2}
-        value={skills}
-        onChange={(e) => setSkills(e.target.value)}
-      />
+        {/* Form Fields */}
+        <Input label="Full Name" value={fullName} setValue={setFullName} placeholder="Enter your full name" />
+        <Input label="Job Title" value={title} setValue={setTitle} placeholder="e.g. Software Engineer" />
+        <Input label="Email" value={email} setValue={setEmail} placeholder="e.g. you@example.com" />
+        <Input label="Phone" value={phone} setValue={setPhone} placeholder="+91 9876543210" />
+        <Input label="LinkedIn" value={linkedin} setValue={setLinkedin} placeholder="linkedin.com/in/username" />
+        <Input label="GitHub" value={github} setValue={setGithub} placeholder="github.com/username" />
+        <Textarea label="Summary" value={summary} setValue={setSummary} placeholder="Write a short professional summary..." />
+        <Textarea label="Education" value={education} setValue={setEducation} placeholder="Your education details..." />
+        <Textarea label="Experience" value={experience} setValue={setExperience} placeholder="Work experience..." />
+        <Textarea label="Projects" value={projects} setValue={setProjects} placeholder="Project details..." />
+        <Textarea label="Skills" value={skills} setValue={setSkills} placeholder="List your skills..." />
+        <Textarea label="Certifications" value={certifications} setValue={setCertifications} placeholder="Certifications..." />
 
-      {/* Education */}
-      <div className="mb-6">
-        <h2 className="font-semibold text-lg mb-2">Education</h2>
-        {education.map((edu, idx) => (
-          <div key={idx} className="grid grid-cols-4 gap-2 mb-2">
-            <input
-              type="text"
-              placeholder="Degree"
-              className="border p-2 rounded"
-              value={edu.degree}
-              onChange={(e) =>
-                updateEducation(idx, "degree", e.target.value)
-              }
-            />
-            <input
-              type="text"
-              placeholder="School"
-              className="border p-2 rounded"
-              value={edu.school}
-              onChange={(e) =>
-                updateEducation(idx, "school", e.target.value)
-              }
-            />
-            <input
-              type="text"
-              placeholder="Year"
-              className="border p-2 rounded"
-              value={edu.year}
-              onChange={(e) => updateEducation(idx, "year", e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Marks/CGPA"
-              className="border p-2 rounded"
-              value={edu.marks}
-              onChange={(e) => updateEducation(idx, "marks", e.target.value)}
-            />
-          </div>
-        ))}
+        {/* Template Selector */}
+        <label className="block mt-4">
+          <span className="font-semibold">Choose Template</span>
+          <select
+            className="w-full border rounded-lg p-2 mt-2"
+            value={template}
+            onChange={(e) => setTemplate(e.target.value)}
+          >
+            <option value="template1">Template 1 - Modern Two Column</option>
+            <option value="template2">Template 2 - Minimalist</option>
+            <option value="template3">Template 3 - Creative Sidebar</option>
+            <option value="template4">Template 4 - Premium Corporate</option>
+          </select>
+        </label>
+
+        {/* Download Button */}
         <button
-          onClick={addEducation}
-          className="px-4 py-1 bg-gray-700 text-white rounded"
+          onClick={handlePrint}
+          className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
         >
-          ➕ Add Education
+          Download Resume
         </button>
       </div>
 
-      {/* Experience */}
-      <textarea
-        placeholder="Experience"
-        className="border p-2 rounded w-full mb-6"
-        rows={3}
-        value={experience}
-        onChange={(e) => setExperience(e.target.value)}
-      />
-
-      {/* Projects */}
-      <textarea
-        placeholder="Projects"
-        className="border p-2 rounded w-full mb-6"
-        rows={3}
-        value={projects}
-        onChange={(e) => setProjects(e.target.value)}
-      />
-
-      {/* Certifications */}
-      <textarea
-        placeholder="Certifications"
-        className="border p-2 rounded w-full mb-6"
-        rows={2}
-        value={certifications}
-        onChange={(e) => setCertifications(e.target.value)}
-      />
-
-      {/* ✅ Download Button */}
-      <button
-        onClick={handlePrint}
-        className="px-6 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
-      >
-        📄 Download Resume
-      </button>
-
-      {/* -------- Resume Preview -------- */}
-      <div
-        ref={resumeRef}
-        className="mt-10 p-6 border rounded-lg shadow bg-white"
-      >
-        <h2 className="text-3xl font-bold">{personal.name}</h2>
-        <p className="text-gray-600">
-          {personal.email} | {personal.phone}
-        </p>
-        <p className="text-gray-500">{personal.linkedin} | {personal.github}</p>
-        <p className="text-gray-500">{personal.address}</p>
-
-        <h3 className="text-xl font-semibold mt-4">Skills</h3>
-        <ul className="list-disc ml-5">
-          {skills.split(",").map(
-            (s, idx) => s.trim() && <li key={idx}>{s.trim()}</li>
-          )}
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-4">Education</h3>
-        <ul>
-          {education.map((edu, idx) => (
-            <li key={idx}>
-              <strong>{edu.degree}</strong> — {edu.school} ({edu.year}) | {edu.marks}
-            </li>
-          ))}
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-4">Experience</h3>
-        <p>{experience}</p>
-
-        <h3 className="text-xl font-semibold mt-4">Projects</h3>
-        <p>{projects}</p>
-
-        <h3 className="text-xl font-semibold mt-4">Certifications</h3>
-        <p>{certifications}</p>
-      </div>
+      {/* Right: Resume Preview */}
+      <div className="w-2/3">{renderTemplate()}</div>
     </div>
   );
 }
+
+// ---------------- REUSABLE COMPONENTS ----------------
+const Input = ({ label, value, setValue, placeholder }: any) => (
+  <label className="block mb-3">
+    <span className="font-semibold">{label}</span>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder={placeholder}
+      className="mt-1 w-full border rounded-lg p-2"
+    />
+  </label>
+);
+
+const Textarea = ({ label, value, setValue, placeholder }: any) => (
+  <label className="block mb-3">
+    <span className="font-semibold">{label}</span>
+    <textarea
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder={placeholder}
+      className="mt-1 w-full border rounded-lg p-2"
+    />
+  </label>
+);
+
+const Section = ({ title, content, sidebar = false }: any) => (
+  <div className={`mb-6 ${sidebar ? "text-white" : ""}`}>
+    <h3 className={`font-bold mb-2 ${sidebar ? "border-b border-gray-400 pb-1" : "text-lg border-b pb-1"}`}>
+      {title}
+    </h3>
+    <p className="text-sm whitespace-pre-line">{content}</p>
+  </div>
+);
+
+const TemplateContainer = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
+  ({ children }, ref) => (
+    <div ref={ref} className="w-full max-w-4xl bg-white mt-10 rounded-xl shadow-lg border p-8">
+      {children}
+    </div>
+  )
+);
