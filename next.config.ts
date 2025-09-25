@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://10.57.27.209:5001/api/:path*",
+        destination: "http://10.12.81.209:5001/api/:path*",
       },
     ];
   },

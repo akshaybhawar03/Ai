@@ -40,6 +40,13 @@ const toolsList = [
     slug: "resume-builder",
     icon: "📝",
   },
+  {
+    id: 6,
+    title: "AI Summarizer",
+    description: "Summarize long text into short, clear summaries using AI.",
+    slug: "ai-summarizer",
+    icon: "✂️",
+  },
 ];
 
 export default function ToolsPage() {
@@ -51,7 +58,7 @@ export default function ToolsPage() {
     "@type": "ItemList",
     name: "AI Finance Tools",
     description:
-      "Free AI-powered financial calculators and tools like SIP Calculator, Loan EMI, Currency Converter, Resume Builder, and more.",
+      "Free AI-powered financial calculators and tools like SIP Calculator, Loan EMI, Currency Converter, Resume Builder, AI Summarizer, and more.",
     url: "https://yourdomain.com/tools",
     numberOfItems: tools.length,
     itemListElement: tools.map((tool, index) => ({
@@ -68,7 +75,7 @@ export default function ToolsPage() {
       {/* ✅ SEO Fallback */}
       <SEO
         title="AI Finance Tools - Free Online Calculators"
-        description="Free AI-powered finance calculators like SIP Calculator, Loan EMI, Currency Converter, and more."
+        description="Free AI-powered finance calculators like SIP Calculator, Loan EMI, Currency Converter, AI Summarizer, and more."
         url="https://yourdomain.com/tools"
         image="/icons/ai-finance.png"
       />
